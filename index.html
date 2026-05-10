@@ -79,30 +79,41 @@ body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667e
   border-left: 3px solid #66BB6A;
 }
 
-main { padding: 40px 20px; max-width: 1200px; margin: 0 auto; }
-main h1 { color: white; margin-bottom: 20px; }
+main {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: calc(100% - 50px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+main h1 { color: white; margin-bottom: 15px; font-size: clamp(24px, 5vw, 36px); }
 main p { color: white; line-height: 1.6; }
-.game-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.game-container { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; max-width: 400px; }
 .board {
   display: grid;
-  grid-template-columns: repeat(3, 100px);
-  grid-template-rows: repeat(3, 100px);
+  grid-template-columns: repeat(3, 1fr);
   gap: 5px;
   background: rgba(255, 255, 255, 0.2);
   padding: 5px;
   border-radius: 10px;
+  width: 100%;
+  aspect-ratio: 1;
 }
 .cell {
   background: rgba(255, 255, 255, 0.9);
   border: none;
   border-radius: 5px;
-  font-size: 48px;
+  font-size: clamp(24px, 8vw, 48px);
   font-weight: bold;
   cursor: pointer;
   transition: background 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
+  aspect-ratio: 1;
 }
 .cell:hover { background: rgba(255, 255, 255, 1); }
 .cell.winner { background: #4CAF50; color: white; }
