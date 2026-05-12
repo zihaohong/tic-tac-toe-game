@@ -10,7 +10,8 @@ const TicTacToe = {
     this.gameOver = false;
     this.renderBoard();
     this.bindEvents();
-    this.updateStatus();
+    this.loadHelpText();
+    this.loadGames();
   },
 
   renderBoard: function() {
@@ -27,27 +28,65 @@ const TicTacToe = {
 
   bindEvents: function() {
     document.getElementById('board').addEventListener('click', (e) => {
-      if (e.target.classList.contains('cell')) {
-        this.handleCellClick(parseInt(e.target.dataset.index));
+      const cell = e.target.closest('.cell');
+      if (cell) {
+        this.handleCellClick(parseInt(cell.dataset.index));
       }
     });
-    document.getElementById('resetBtn').addEventListener('click', () => { this.init(); });
+
+    // Games dropdown
+    const gamesBtn = document.getElementById('gamesBtn');
+    const gamesDropdown = document.getElementById('gamesDropdown');
+    gamesBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      gamesDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', () => {
+      gamesDropdown.classList.remove('show');
+    });
+
+    gamesDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Help dropdown
+    const helpBtn = document.getElementById('helpBtn');
+    const helpDropdown = document.getElementById('helpDropdown');
+    helpBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      helpDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', () => {
+      helpDropdown.classList.remove('show');
+    });
+
+    helpDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Locale dropdown
+    document.getElementById('localeSelect').addEventListener('change', (e) => {
+      this.loadHelpText(e.target.value);
+    });
   },
 
   handleCellClick: function(index) {
-    if (this.gameOver || this.board[index]) return;
+    if (this.gameOver || this.board[index]) {
+      if (this.gameOver) {
+        this.init();
+      }
+      return;
+    }
     this.board[index] = this.currentPlayer;
+    this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
     this.renderBoard();
     if (this.checkWin()) {
       this.gameOver = true;
-      document.getElementById('status').textContent = `Player ${this.currentPlayer} wins!`;
       this.highlightWinner();
     } else if (this.board.every(cell => cell !== null)) {
       this.gameOver = true;
-      document.getElementById('status').textContent = "It's a draw!";
-    } else {
-      this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
-      this.updateStatus();
     }
   },
 
@@ -74,12 +113,38 @@ const TicTacToe = {
     }
   },
 
-  updateStatus: function() {
-    document.getElementById('status').textContent = `Player ${this.currentPlayer}'s turn`;
+  loadHelpText: function(locale) {
+    locale = locale || 'en';
+    const helpTexts = {
+      en: {
+        title: 'How to Play',
+        text: 'Click on a cell to place your mark (X or O). Take turns with the other player. Get three in a row (horizontal, vertical, or diagonal) to win!'
+      },
+      zh: {
+        title: '如何玩',
+        text: '点击格子放置你的标记（X或O）。与对手轮流下棋。在一条线上（水平、垂直或对角线）连成三个即可获胜！'
+      }
+    };
+    const help = helpTexts[locale] || helpTexts.en;
+    document.getElementById('helpTitle').textContent = help.title;
+    document.getElementById('helpText').textContent = help.text;
+  },
+
+  loadGames: function() {
+    fetch('https://zihaohong.github.io/data/links/games.json')
+      .then(response => response.json())
+      .then(data => {
+        const locale = document.getElementById('localeSelect').value;
+        const games = data[locale]?.games || data.en.games;
+        const currentPath = window.location.pathname;
+        const dropdown = document.getElementById('gamesDropdown');
+        dropdown.innerHTML = games.map(game => {
+          const isCurrent = currentPath.includes(game.link.replace('https://zihaohong.github.io/', ''));
+          return `<a href="${game.link}" class="${isCurrent ? 'current' : ''}">${game.title}</a>`;
+        }).join('');
+      })
+      .catch(error => console.error('Error loading games:', error));
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  Navbar.init();
-  TicTacToe.init();
-});
+document.addEventListener('DOMContentLoaded', () => TicTacToe.init());
