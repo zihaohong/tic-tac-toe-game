@@ -34,7 +34,6 @@ const TicTacToe = {
       }
     });
 
-    // Games dropdown
     const gamesBtn = document.getElementById('gamesBtn');
     const gamesDropdown = document.getElementById('gamesDropdown');
     gamesBtn.addEventListener('click', (e) => {
@@ -50,7 +49,6 @@ const TicTacToe = {
       e.stopPropagation();
     });
 
-    // Help dropdown
     const helpBtn = document.getElementById('helpBtn');
     const helpDropdown = document.getElementById('helpDropdown');
     helpBtn.addEventListener('click', (e) => {
@@ -66,7 +64,6 @@ const TicTacToe = {
       e.stopPropagation();
     });
 
-    // Locale dropdown
     document.getElementById('localeSelect').addEventListener('change', (e) => {
       this.loadHelpText(e.target.value);
     });
@@ -122,7 +119,7 @@ const TicTacToe = {
       },
       zh: {
         title: '如何玩',
-        text: '点击格子放置你的标记（X或O）。与对手轮流下棋。在一条线上（水平、垂直或对角线）连成三个即可获胜！'
+        text: '点击格子放置你的标记（X 或 O）。与对手轮流下棋。在一条线上（水平、垂直或对角线）连成三个即可获胜！'
       }
     };
     const help = helpTexts[locale] || helpTexts.en;
@@ -135,12 +132,12 @@ const TicTacToe = {
       .then(response => response.json())
       .then(data => {
         const locale = document.getElementById('localeSelect').value;
-        const games = data[locale]?.games || data.en.games;
+        const items = data[locale] || data.en || {};
         const currentPath = window.location.pathname;
         const dropdown = document.getElementById('gamesDropdown');
-        dropdown.innerHTML = games.map(game => {
-          const isCurrent = currentPath.includes(game.link.replace('https://zihaohong.github.io/', ''));
-          return `<a href="${game.link}" class="${isCurrent ? 'current' : ''}">${game.title}</a>`;
+        dropdown.innerHTML = Object.entries(items).map(([title, params]) => {
+          const isCurrent = currentPath.includes(params.url.replace('https://zihaohong.github.io/', ''));
+          return `<a href="${params.url}" class="${isCurrent ? 'current' : ''}">${title}</a>`;
         }).join('');
       })
       .catch(error => console.error('Error loading games:', error));
